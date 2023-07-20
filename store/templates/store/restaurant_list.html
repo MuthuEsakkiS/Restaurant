@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+    <title>List</title>
+</head>
+<body>
+    <form>
+        <label for="sort">Sort by:</label>
+        <select name="sort" id="sort">
+            <option value="">-- None --</option>
+            <option value="cost_high">Cost for Two (High to Low)</option>
+            <option value="cost_low">Cost for Two (Low to High)</option>
+        </select>
+        <label for="filter">Filter by:</label>
+        <select name="filter" id="filter">
+            <option value=""> -- None --</option>
+            <option value="city">City</option>
+            <option value="veg">Veg?</option>
+        </select>
+        <input type="text" name="input" id="input", value="{{data}}">
+        <button type="submit">APPLY</button>
+    </form>
+    <div style="text-align: right;">
+        <a href="{% url 'restaurant:cart_list' user_id=user.id %}">Cart</a> |
+        <a href="{% url 'restaurant:profile' user_id=user.id %}">Profile</a>
+    </div>
+
+    <h2 style="text-align: center;"> Welcome {{user.first_name}} </h2>
+    
+    {% if restaurants %}
+        <h2 style="text-align: center;"> --- Restaurant List --- </h2>
+        <table style="width: 100%;">
+            <tr style="background-color: aqua;">
+                <th>Name</th>
+                <th>Cost for Two</th>
+                <th>City</th>
+                <th>Status</th>
+            </tr>
+            
+            <!-- List the restaurants -->
+            {% for restaurant in restaurants %}
+                <tr style="text-align: center;">
+                    <td>
+                        <a href="{% url 'restaurant:restaurant_detail' restaurant_id=restaurant.id user_id=user.id %}" style="color: black;">{{restaurant.title}}</a>
+                    </td>
+                    <td>{{restaurant.cost_for_two}}</td>
+                    <td>{{restaurant.location}}</td>
+                    {% if restaurant.open_timing > current_time or current_time > restaurant.close_timing %}
+                        <td>Closed</td>
+                    {% else %}
+                        <td>Open</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <h2> No Restaurant Available!</h2>
+    {% endif %}
+</body>
+</html>

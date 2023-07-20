@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warning</title>
+</head>
+<body>
+    {% if incorrect_login %}
+        <p> Either email or password is incorrect! </p>
+        <p><a href="{% url 'authentication:sign_in' %}">Go to Main Screen</a></p>
+    {% elif delete_user %}
+        <p> Account Deleted Successfully.</p>
+        <p><a href="{% url 'authentication:sign_in' %}">Go to Main Screen</a></p>
+    {% elif doesnot_exist %}
+        <p> There is no account! </p>
+        <p><a href="{% url 'authentication:sign_in' %}">Go to Main Screen</a></p>
+    {% else %}
+        {% if passcode_check %}
+            <p> Both password and confirm password must be same.</p>
+        {% elif same_email %}
+            <p> There is already an account created with this email ID. Try to create one with some other email.</p>
+        {% endif %}
+        <p><a href="{% url 'authentication:sign_up' %}">Go to Signup Page</a></p>
+    {% endif %}
+</body>
+</html>

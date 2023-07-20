@@ -1,0 +1,223 @@
+
+# Function Based View 
+"""
+
+    path('restaurant/', views.restaurant_list, name="restaurant_list"),
+    path('restaurant/<int:restaurant_id>/', views.restaurant_detail, name='restaurant_detail'),
+    path('review/<int:dish_id>/add_review/', views.add_review, name='add_review'),
+    path('review/<int:review_id>/edit_review/', views.edit_review, name='edit_review'),
+    path('review/<int:review_id>/delete_review/', views.delete_review, name='delete_review'),
+    path('restaurant/<int:restaurant_id>/add_bookmark', views.add_bookmark, name='add_bookmark'),
+    path('restaurant/<int:restaurant_id>/delete_bookmark', views.delete_bookmark, name='delete_bookmark'),
+    path('restaurant/<int:restaurant_id>/add_visit', views.add_visit, name='add_visit'),
+    path('restaurant/<int:restaurant_id>/delete_visit', views.delete_visit, name='delete_visit'),
+
+"""
+
+
+
+
+
+
+
+
+
+
+# --- Function based views ---
+
+"""
+def restaurant_list(request):
+    restaurant_list = Restaurant.objects.all()
+    
+    sort_by = request.GET.get('sort')
+    if sort_by == 'cost_high':
+        restaurant_list = restaurant_list.order_by('-cost_for_two')
+    elif sort_by == 'cost_low':
+        restaurant_list = restaurant_list.order_by('cost_for_two')
+
+    filter_by = request.GET.get('filter')
+    data = request.GET.get('input')
+    if filter_by == 'city' and data:
+        restaurant_list = restaurant_list.filter(location__icontains=data)
+    if filter_by == 'veg' and data:
+        restaurant_list = restaurant_list.filter(dietary_type__icontains=data)
+    current_time = datetime.now()
+    current_time = current_time.time()
+    context = {
+        'restaurants': restaurant_list,
+        'current_time': current_time
+    }
+    return render(request, 'store/restaurant_list.html', context)
+
+
+
+def restaurant_detail(request, restaurant_id):
+        restaurant = Restaurant.objects.get(pk=restaurant_id)
+        reviews = Review.objects.filter(restaurant=restaurant)
+        dishes = Dish.objects.filter(restaurant=restaurant)
+        context = {
+             'restaurant': restaurant,
+             'reviews': reviews,
+             'dishes': dishes
+        }
+        return render(request, "store/restaurant_detail.html", context)
+
+        
+def add_review(request, dish_id):
+    dish = get_object_or_404(Dish, pk=dish_id)
+    if Review.objects.filter(Dish=dish_id).exists():
+        return HttpResponse("Data Already stored!")
+    if request.method == 'POST':
+        rating = request.POST.get('rating')
+        comment = request.POST.get('comment')
+        Review.objects.create(user=request.user, dish=dish, rating=rating, comment=comment)
+        return redirect('restaurant_detail', dish_id=dish_id)
+    return render(request, 'store/add_review.html', {'dish': dish})
+
+
+
+def add_bookmark(request, restaurant_id):
+    restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
+    bookmarks = Bookmark.objects.all()
+    if bookmarks:
+        for bookmark in bookmarks:
+            if restaurant.title == bookmark.restaurant.title and request.user == bookmark.user:
+                return HttpResponse("Bookmark already added!")
+        else:
+            Bookmark.objects.create(user=request.user, restaurant=restaurant)
+            return HttpResponse("Bookmark added successfully!")
+    
+    Bookmark.objects.create(user=request.user, restaurant=restaurant)
+    return HttpResponse("Bookmark added successfully!")
+
+
+
+def add_visit(request, restaurant_id):
+    restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
+    visits = Visit.objects.all()
+    if visits:
+        for visit in visits:
+            if restaurant.title == visit.restaurant.title and request.user == visit.user:
+                return HttpResponse("Already Visited")
+        else:
+            Visit.objects.create(user=request.user, restaurant=restaurant)
+            return HttpResponse("Marked Visited!")   
+         
+    Visit.objects.create(user=request.user, restaurant=restaurant)
+    return HttpResponse("Marked Visited!")
+
+def delete_visit(request, restaurant_id):
+    restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
+    visits = Visit.objects.all()
+    if visits:
+        for visit in visits:
+            if restaurant.title == visit.restaurant.title and request.user == visit.user:
+                visit.delete()
+                return HttpResponse("Marked Unvisited!")
+        else:
+            return HttpResponse("Not marked as visited!")
+    return HttpResponse("Not marked as visited!")
+
+def delete_bookmark(request, restaurant_id):
+    restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
+    bookmarks = Bookmark.objects.all()
+    if bookmarks:
+        for bookmark in bookmarks:
+            if restaurant.title == bookmark.restaurant.title and request.user == bookmark.user:
+                bookmark.delete()
+                return HttpResponse("Bookmark deleted successfully!")
+        else:
+            return HttpResponse("Not Bookmarked!")
+    return HttpResponse("Not Bookmarked!")
+
+
+def edit_review(request, review_id):
+    review = get_object_or_404(Review, pk=review_id)
+    if review.user != request.user:
+        return redirect('restaurant_list')
+    restaurant = review.restaurant
+    if request.method == 'POST':
+        rating = request.POST.get('rating')
+        comment = request.POST.get('comment')
+        review.rating = rating
+        review.comment = comment
+        review.save()
+        return redirect('restaurant_detail', restaurant_id=restaurant.id)
+    return render(request, 'store/edit_review.html', {'restaurant': restaurant, 'review': review})
+
+
+def delete_review(request, review_id):
+    review = get_object_or_404(Review, pk=review_id)
+    if review.user != request.user:
+        return redirect('restaurant_list')
+    restaurant = review.restaurant
+    review.delete()
+    return redirect('restaurant_detail', restaurant_id=restaurant.id)
+
+"""   
+
+
+"""
+
+Bookmark Code:
+
+bookmarks = Bookmark.objects.all()
+    if bookmarks:
+        for bookmark in bookmarks:
+            if restaurant.title == bookmark.restaurant.title and request.user == bookmark.user:
+                return HttpResponse("Bookmark already added!")
+            else:
+                Bookmark.objects.create(user=request.user, restaurant=restaurant)
+                return redirect("restaurant:restaurant_detail", pk=restaurant_id)
+        Bookmark.objects.create(user=request.user, restaurant=restaurant)
+
+        
+
+
+Restaurant List Code
+
+    model = Restaurant
+    template_name = "store/restaurant_list.html"
+    context_object_name = "restaurants"
+
+    # Operations in the list data.
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # Apply sorting logic based on the selected option
+        sort_by = self.request.GET.get('sort')
+        if sort_by == 'cost_high':
+            queryset = queryset.order_by('-cost_for_two')
+        elif sort_by == 'cost_low':
+            queryset = queryset.order_by('cost_for_two')
+        
+        # Apply filtering logic based on the selected option
+        filter_by = self.request.GET.get('filter')
+        data = self.request.GET.get('input')
+        if filter_by == 'city' and data:
+            queryset = queryset.filter(location__icontains=data)
+        if filter_by == 'veg' and data:
+            queryset = queryset.filter(dietary_type__icontains=data)
+
+        return queryset
+    
+        
+
+
+    DetailView
+
+        
+    model = Restaurant
+    template_name = 'store/restaurant_detail.html'
+    context_object_name = 'restaurant'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        restaurant = self.object
+        dishes = Dish.objects.filter(restaurant=restaurant)
+        bookmark = Bookmark.objects.filter(restaurant=restaurant)
+        visit = Visit.objects.filter(restaurant=restaurant)
+        context['dishes'] = dishes
+        context['bookmark'] = bookmark
+        context['visit'] = visit
+        return context
+"""

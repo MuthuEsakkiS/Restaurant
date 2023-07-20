@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .profile {
+            margin-top: 200px;
+        }
+    </style>
+    <title>Profile</title>
+</head>
+<body>
+    <div style="text-align: center;" class="profile">
+        <p>First Name: {{user.first_name}}</p>
+        <p>Last Name: {{user.last_name}}</p>
+        <p>Mail ID: {{user.username}}</p>
+        <p><a href="/signout">Logout</a></p>
+        <p><a href="{% url 'authentication:delete_user' user_id=user.id %}">Delete an Account</a></p>
+    </div>
+</body>
+</html>

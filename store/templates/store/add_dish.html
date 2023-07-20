@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add dish to the cart</title>
+</head>
+<body>
+    <form method="post">
+        {% csrf_token %}
+        {% if dish %}
+            <p><strong> How many {{dish.name}} you want from {{dish.restaurant.title}} restaurant? </strong></p>
+        {% else %}
+            <p><strong> How many {{cart.dish.name}} you want from {{cart.dish.restaurant.title}} restaurant? </strong></p>
+        {% endif %}
+        {{form.as_p}}
+        <input type="submit">
+    </form>
+</body>
+</html>

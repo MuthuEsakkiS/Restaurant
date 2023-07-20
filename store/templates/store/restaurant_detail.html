@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 10px;
+        }
+        .link {
+            text-decoration: none;
+            color: black;
+        }
+    </style>
+    <title>Restaurant Detail</title>
+</head>
+<body>
+    <div style="text-align: right;">
+        <p><a href="{% url 'restaurant:restaurant_list' user_id=user_id %}">Home</a></p>
+    </div>
+    <div style="text-align: center;">
+        <h2>{{ restaurant.title }}</h2>
+        <p>Owner: {{ restaurant.owner}}</p>
+        <p>Location: {{restaurant.address}}, {{restaurant.location}} </p>
+        <p>Timing: {{ restaurant.open_timing }} - {{ restaurant.close_timing }}</p>
+        <p>dietary_type: {{ restaurant.dietary_type }}</p>
+
+        <!-- Code to add and remove bookmark restaurant -->
+        {% if bookmark %}
+            <button><a href="{% url 'restaurant:remove_bookmark' restaurant_id=restaurant.id user_id=user_id %}" style="text-decoration: none; color:black;">Delete Bookmark</a></button>
+        {% else %}
+            <button><a href="{% url 'restaurant:add_bookmark' restaurant_id=restaurant.id user_id=user_id %}" style="text-decoration: none; color:black;">Add Bookmark</a></button>
+        {% endif %}
+
+        <!-- Code to visit and unvisit status -->
+        {% if visit %}
+            <button><a href="{% url 'restaurant:remove_visit' restaurant_id=restaurant.id user_id=user_id %}" style="text-decoration: none; color:black;">Remove Visit</a></button>
+        {% else %}
+            <button><a href="{% url 'restaurant:add_visit' restaurant_id=restaurant.id user_id=user_id %}" style="text-decoration: none; color:black;">Add as Visited</a></button>
+        {% endif %}    
+    </div>
+
+    <!-- Code for iterate every dishes in a restauarnt -->
+    {% if dishes %}
+        <p style="text-align: center;"><strong>Dishes</strong></p>
+        <div class="grid-container">
+            {% for dish in dishes %}
+                <div style="text-align: center;">
+                    <div><img src="{{dish.image.url}}" height="150px" width="150px"></div>
+                    <div>Name: {{dish.name}}</div>
+                    <div>Price: ₹{{dish.price}}</div>
+                    <div>Veg: {{dish.is_veg}}</div>
+                    <div>
+                        {% if dish.cart.user.id == user_id %}
+                            <button><a href="{% url 'restaurant:cart_list' user_id=user_id %}" class="link">Go to cart</a></button>
+                        {% else %}
+                            <button><a href="{% url 'restaurant:add_cart' dish_id=dish.id user_id=user_id %}" class="link">Add to Cart</a></button>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {% if dish.review.user.id == user.id %}
+                            <div>Rating: {{dish.review.rating}}</div>
+                            <div>Review: {{dish.review.comment}}</div>
+                            <button><a href="{% url 'restaurant:delete_review' review_id=dish.review.id user_id=user_id %}" class="link">Delete Review </a></button>
+                            <button><a href="{% url 'restaurant:update_review' review_id=dish.review.id user_id=user_id %}" class="link">Update Review</a></button>
+                        {% else %}
+                            <button><a href="{% url 'restaurant:add_review' dish_id=dish.id user_id=user_id %}" class="link">Add Review</a></button>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+    {% endif %}
+</body>
+</html>
