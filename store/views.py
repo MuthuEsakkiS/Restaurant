@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.views.generic import *
 from django.views import View
@@ -7,6 +9,7 @@ from .forms import *
 import razorpay
 
 
+@login_required
 def profile(request, *args, **kwargs):
     user_id = kwargs.get('user_id')
     user = get_object_or_404(User, pk=user_id)
@@ -15,8 +18,9 @@ def profile(request, *args, **kwargs):
     }
     return render(request, 'store/profile.html', context)
 
+
 """ Define a class for list all the available restaurants """
-class RestaurantList(View):
+class RestaurantList(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         restaurants = Restaurant.objects.all()
         user_id = kwargs.get('user_id')
@@ -45,7 +49,7 @@ class RestaurantList(View):
 
 
 """ Define a class to show the detail of a single restaurant """
-class RestaurantDetail(View):
+class RestaurantDetail(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         restaurant_id = kwargs.get('restaurant_id')
         user_id = kwargs.get('user_id')
@@ -69,7 +73,7 @@ class RestaurantDetail(View):
 
 
 """ Define a class to add bookmark to a restaurant """
-class AddBookmark(View):
+class AddBookmark(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         restaurant_id = kwargs.get('restaurant_id')
         user_id = kwargs.get('user_id')
@@ -77,8 +81,9 @@ class AddBookmark(View):
         Bookmark.objects.get_or_create(restaurant=restaurant, user=request.user)
         return redirect("restaurant:restaurant_detail", restaurant_id=restaurant_id, user_id=user_id)
 
+
 """ Define a class to remove bookmark from a restaurant """
-class RemoveBookmark(View):
+class RemoveBookmark(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         restaurant_id = kwargs.get('restaurant_id')
         user_id = kwargs.get('user_id')
@@ -91,8 +96,9 @@ class RemoveBookmark(View):
         else:
             return HttpResponse("Not Bookmarked!")
 
+
 """ Define a class to mark a visit status of a restaurant """
-class MarkVisit(View):
+class MarkVisit(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         restaurant_id = kwargs.get('restaurant_id')
         user_id = kwargs.get('user_id')
@@ -102,7 +108,7 @@ class MarkVisit(View):
 
 
 """ Define a class to unmark the visit status of a restaurant """
-class UnmarkVisit(View):
+class UnmarkVisit(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         restaurant_id = kwargs.get('restaurant_id')
         user_id = kwargs.get('user_id')
@@ -117,7 +123,7 @@ class UnmarkVisit(View):
 
 
 """ Define a class to add a review for a specific dish """
-class AddReview(View):
+class AddReview(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         dish_id = kwargs.get('dish_id')
         dish = get_object_or_404(Dish, pk=dish_id)
@@ -140,7 +146,7 @@ class AddReview(View):
 
 
 """ Define a class to delete a review from a specific dish """
-class DeleteReview(View):
+class DeleteReview(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         review_id = kwargs.get('review_id')
         user_id = kwargs.get('user_id')
@@ -150,8 +156,9 @@ class DeleteReview(View):
         review.delete()
         return redirect('restaurant:restaurant_detail', restaurant_id=restaurant_id, user_id=user_id)
 
+
 """ Define a class to update a review """
-class UpdateReview(View):
+class UpdateReview(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         review_id = kwargs.get('review_id')
         review = get_object_or_404(Review, pk=review_id)
@@ -174,6 +181,7 @@ class UpdateReview(View):
         review.save()
         return redirect('restaurant:restaurant_detail', restaurant_id=dish.restaurant.id, user_id=user_id)
 
+
 """ Function to calculate the total amount from the dish listed in the cart """
 def amount_calculation(items):
     total_amount = 0
@@ -181,8 +189,9 @@ def amount_calculation(items):
         total_amount = total_amount + (item.quantity * item.dish.price)
     return total_amount
 
+
 """ List all the dishes in the cart """
-class CartView(View):
+class CartView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
         cart_items = Cart.objects.filter(user=request.user)
@@ -193,6 +202,7 @@ class CartView(View):
             'user_id': user_id
         }
         return render(request, 'store/cart.html', context)
+
 
 """ Add a dish to the cart """
 class AddToCart(View):
@@ -215,8 +225,9 @@ class AddToCart(View):
         Cart.objects.create(user=user, dish=dish, quantity=quantity)
         return redirect('restaurant:cart_list', user_id=user_id)
 
+
 """ Update the quantity of dish in the cart """
-class UpdateCartItem(View):
+class UpdateCartItem(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         cart_id = kwargs.get('cart_id')
         cart = get_object_or_404(Cart, pk=cart_id)
@@ -236,8 +247,9 @@ class UpdateCartItem(View):
         cart.save()
         return redirect('restaurant:cart_list', user_id=user_id)
 
+
 """ Delete the dish from the cart """
-class DeleteCartItem(View):
+class DeleteCartItem(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         cart_id = kwargs.get('cart_id')
         cart = get_object_or_404(Cart, pk=cart_id)
@@ -245,8 +257,9 @@ class DeleteCartItem(View):
         cart.delete()
         return redirect('restaurant:cart_list', user_id=user_id)
 
+
 """ Define a class for payment integration using Razorpay """
-class PaymentIntegration(View):
+class PaymentIntegration(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         user_id = kwargs.get('pk')
         cart_items = Cart.objects.all()

@@ -17,6 +17,7 @@
         <p>Mail ID: {{user.username}}</p>
         <p><a href="/signout">Logout</a></p>
         <p><a href="{% url 'authentication:delete_user' user_id=user.id %}">Delete an Account</a></p>
+        <p><strong><a href="/user_list" style="text-decoration: none; color:red">User List</a></strong></p> 
     </div>
 </body>
 </html>

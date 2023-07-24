@@ -3,26 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        .user_list {
-            text-decoration: none;
-            color: red;
-            margin-left: 80%;
-            padding: 10px;
-            background-color: blanchedalmond;
-            border-radius: 10px;
-        }
-    </style>
     <title>Login</title>
 </head>
 <body>
-    <p><strong><a href="/user_list" class="user_list">User List</a></strong></p>
     <div style="text-align: center;">
         <h3>Login</h3>
         <form method="post">
             {% csrf_token %}
             <input type="email" name="username" placeholder="Enter your email here."><br>
-            <input type="password" name="password" placeholder="Enter your password here."><br>
+            <input type="password" name="password" placeholder="Enter your password here." maxlength="8"><br>
             <input type="submit" value="Login">
         </form>
         <p>

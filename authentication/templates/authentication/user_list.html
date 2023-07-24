@@ -40,7 +40,12 @@
             {% endfor %}
         </table>
         <div style="margin-top: 30px;">
-            <a href="/export_to_excel" class="button_design"> Export to Excel </a>
+            <div>
+                <a href="/export_to_excel" class="button_design"> Export to Excel </a>
+            </div>
+            <div style="margin-top: 30px;">
+                <a href="{% url 'authentication:import_from_excel' %}" class="button_design" style="background-color: red;">Import from Excel</a>
+            </div>
         </div> 
     {% else %}
         <div style="text-align: center;">

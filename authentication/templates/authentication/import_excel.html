@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .card {
+            text-align: center;
+            margin-top: 20%;
+            background-color: blueviolet;
+            color: white;
+            padding: 20px 45px 20px 45px;
+            border-radius: 20px;
+            width: fit-content;
+            margin-left: 35%;
+        }
+    </style>
+    <title>Import</title>
+</head>
+<body>
+    {% if success %}
+        <div style="text-align: center;">
+            <h2> File uploaded successfully! </h2>
+            <a href="{% url 'authentication:sign_in' %}">Go to Main Screen</a>
+        </div>
+    {% else %}
+        <div class="card">
+            <h2> Import from Excel </h2>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="myfile">
+                <button type="submit"> Upload </button>
+            </form> 
+        </div>
+    {% endif %}
+</body>
+</html>

@@ -10,8 +10,9 @@ urlpatterns = [
     path('signup', views.Signup.as_view(), name="sign_up"),
     path('signout', views.signout, name='sign_out'),
 
-    # URL for delete account, user list and export user data
+    # URL for delete account, user list, import and export user data
     path('delete_user/<int:user_id>/', views.DeleteUser.as_view(), name="delete_user"),
     path('user_list', views.user_list, name='user_list'),
     path('export_to_excel', views.ExportToExcel.as_view(), name='export_to_excel'),
+    path('import_from_excel', views.ImportFromExcel.as_view(), name="import_from_excel"),
 ]
