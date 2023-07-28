@@ -19,9 +19,9 @@
 </head>
 <body>
     {% if success %}
-        <div style="text-align: center;">
+        <div class="card">
             <h2> File uploaded successfully! </h2>
-            <a href="{% url 'authentication:sign_in' %}">Go to Main Screen</a>
+            <a href="{% url 'authentication:user_list' %}" style="color:aliceblue">Go 2 User List</a>
         </div>
     {% else %}
         <div class="card">

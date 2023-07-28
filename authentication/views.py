@@ -7,6 +7,8 @@ from django.shortcuts import redirect, render
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.views.generic import *
+from foodiee import settings
+from .tasks import *
 from . import forms
 import pandas
 
@@ -30,6 +32,13 @@ class Signup(View):
             user.first_name = first_name
             user.last_name = last_name
             user.save()
+            message = 'Hello {}!, Thank you for opening an account, Your account opened successfully!'.format(user.first_name)
+            send_email_fun.delay(
+                'Account Opening', 
+                message,
+                settings.EMAIL_HOST_USER,
+                username
+            )
             return redirect('authentication:sign_in')
         except:
             return render(request, 'authentication/warning.html', {'same_email': 'same_email'})
@@ -110,8 +119,8 @@ class ImportFromExcel(LoginRequiredMixin, View):
         for data_frame in data_frame.itertuples():
             if not User.objects.filter(username = data_frame.email).exists():
                 user_object = User.objects.create(username=data_frame.email, 
-                                                      password=make_password(str(data_frame.password)), 
-                                                      first_name=data_frame.first_name, 
-                                                      last_name=data_frame.last_name)
+                                                  password=make_password(str(data_frame.password)), 
+                                                  first_name=data_frame.first_name, 
+                                                  last_name=data_frame.last_name)
                 user_object.save()
         return render(request, 'authentication/import_excel.html', {'success': 'success'})
